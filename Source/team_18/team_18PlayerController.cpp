@@ -154,6 +154,8 @@ void Ateam_18PlayerController::Move(const FInputActionValue& Value)
 	// input is a Vector2D
 	FVector2D MovementVector = Value.Get<FVector2D>();
 
+	UCameraComponent* ActiveCamera = GetActiveCamera();
+
 	APawn* ControlledPawn = GetPawn();	
 	if (ControlledPawn != nullptr)
 	{
@@ -162,13 +164,37 @@ void Ateam_18PlayerController::Move(const FInputActionValue& Value)
 		const FRotator YawRotation(0, Rotation.Yaw, 0);
 
 		// get forward vector
-		const FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+		FVector ForwardDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+		if (ActiveCamera)
+		{
+			ForwardDirection = ActiveCamera->GetForwardVector();
+		}
 	
 		// get right vector 
-		const FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+		FVector RightDirection = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+		if (ActiveCamera)
+		{
+			RightDirection = ActiveCamera->GetRightVector();
+		}
 
 		// add movement 
 		ControlledPawn->AddMovementInput(ForwardDirection, MovementVector.Y);
 		ControlledPawn->AddMovementInput(RightDirection, MovementVector.X);
 	}
+}
+
+UCameraComponent* Ateam_18PlayerController::GetActiveCamera() const
+{
+	const APlayerController* PlayerController = Cast<APlayerController>(this);
+	if (PlayerController)
+	{
+		AActor* ViewTarget = PlayerController->GetViewTarget();
+		if (ViewTarget)
+		{
+			UCameraComponent* ActiveCamera = ViewTarget->FindComponentByClass<UCameraComponent>();
+			return ActiveCamera;
+		}
+	}
+
+	return nullptr;
 }

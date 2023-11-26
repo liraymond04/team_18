@@ -3,6 +3,7 @@
 #pragma once
 
 #include "CoreMinimal.h"
+#include "Camera/CameraComponent.h"
 #include "Templates/SubclassOf.h"
 #include "GameFramework/PlayerController.h"
 #include "team_18PlayerController.generated.h"
@@ -72,6 +73,8 @@ protected:
 
 	/** Called for movement input */
 	void Move(const FInputActionValue& Value);
+
+	UCameraComponent* GetActiveCamera() const;
 
 private:
 	FVector CachedDestination;
